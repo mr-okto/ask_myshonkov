@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+  <link rel="stylesheet" href="{% static 'css/askme.css' %}">
+
+  <title>{% block title %}AskMe{% endblock title %}</title>
+</head>
+
+<body>
+{% include 'inc/navbar.html' %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 ask-content">
+      {% block content %}{% endblock content %}
+   </div>
+    <div class="col-md-4 ask-sidebar">
+      {% block sidebar %}
+      {% include 'inc/sidebar.html' %}
+      {% endblock sidebar %}
+    </div>
+  </div>
+</div>
+
+<!-- Optional JavaScript -->
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+
+</body>
+</html>
