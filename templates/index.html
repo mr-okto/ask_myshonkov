@@ -10,6 +10,6 @@
 {% for question in questions %}
 {% include 'inc/question.html' %}
 {% endfor %}
-{% include 'inc/pager.html' with page=questions%}
+{% include 'inc/pager.html' with object=questions %}
 
 {% endblock content %}
