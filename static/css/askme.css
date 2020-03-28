@@ -17,14 +17,22 @@
   width: 10em;
 }
 
-.ask-list-active-header {
-  font-size: 2em;
-}
-
 .ask-list-inactive-header {
   font-size: 1.5em;
 }
 
 .ask-question-title {
   font-size: 1.3em;
+}
+
+.ask-block-header {
+  font-size: 2em;
+}
+
+.ask-popular-tag {
+  padding-right: 2em;
+}
+
+.ask-best-member-link {
+  font-size: 1.2em;
 }
