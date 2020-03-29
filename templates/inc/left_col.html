@@ -1,0 +1,11 @@
+{% load static %}
+
+  <div class="text-center">
+    <img class="ask-avatar-thumb pt-2" src="{% static 'img/cat.jpg' %}">
+    <span class="px-1 py-0 ask-left-col-name">{{ name }}</span>
+    <div class="row justify-content-center">
+      <a href="#"><img src="{% static 'svg/arrow_up.svg' %}"></a>
+      <span class="mx-1 ask-votes-count">{{ votes }}</span>
+      <a href="#"><img src="{% static 'svg/arrow_down.svg' %}"></a>
+    </div>
+  </div>

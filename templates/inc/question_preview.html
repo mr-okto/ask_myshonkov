@@ -1,31 +1,19 @@
 {% load static %}
 
-<div class="container border rounded mb-4 p-1">
+<div class="container-fluid border rounded mb-4 p-1">
   <div class="row">
     <div class="col-md-2">
-      <div class="text-center m-1">
-        <img class="img-thumbnail ask-question-thumb" src="{% static 'img/cat.jpg' %}">
-      </div>
-      <div class="container d-flex flex-nowrap justify-content-center">
-        <a href="#"><img src="{% static 'svg/arrow_up.svg' %}"></a>
-        <span class="mx-1 ask-votes-count">{{ question.votes }}</span>
-        <a href="#"><img src="{% static 'svg/arrow_down.svg' %}"></a>
-      </div>
+      {% include 'inc/left_col.html' with votes=question.votes name=question.author %}
     </div>
-    <div class="col-md-10">
+    <div class="col-md-10 pl-0">
       <a class="mt-0 mb-1 ask-question-title" href="#">{{ question.title }}</a>
-      <p class="text-justify pr-4 mt-1 mb-1">{{ question.text }}</p>
+      <p class="text-justify pr-2 mt-1 mb-1">{{ question.text }}</p>
       <div class="row">
         <a class="col-md-3 mb-2" href="#">Answer ({{ question.answers_count }})</a>
-      <div class="col-md-9">
-        <span class="sqk-question-tags-header">Tags: </span>
-        {% for tag in question.tags %}
-        <a href="#" class="refs mr-1">{{ tag }}</a>
-        {% endfor %}
+        <div class="col-md-9">
+          {% include 'inc/question_tags.html' with tags=question.tags %}
+        </div>
       </div>
-      </div>
-      
     </div>
   </div>
 </div>
-

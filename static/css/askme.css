@@ -1,8 +1,11 @@
-.ask-useravatar {
+.ask-navbar-avatar {
   height: 3em;
 }
-.ask-question-thumb {
-  height: 5em;
+
+.ask-avatar-thumb {
+  width: 100%;
+  object-fit: contain;
+  max-height: 6em;
 }
 
 .nav-link {
@@ -36,3 +39,16 @@
 .ask-best-member-link {
   font-size: 1.2em;
 }
+
+.ask-question .ask-question-title {
+  font-size: 2em;
+}
+
+.ask-question .ask-avatar-thumb {
+  max-height: 9em;
+}
+
+.ask-left-col-name {
+  font-size: 0.8em;
+}
+
