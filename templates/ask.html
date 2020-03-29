@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row mb-2 pl-3">
+  <p class="ask-block-header align-self-baseline mr-3">New Question</p>
+</div>
+
+<form class="ask-new-form needs-validation" method="POST">
+  {% csrf_token %}
+  {% for f in form.visible_fields %}
+  <div class="fieldWrapper mb-3">
+    <label>{{ f.label }}</label>
+    {{ f.as_widget }}
+    {{ f.errors }}
+  </div>
+  {% endfor %}
+  <button class="btn btn-success btn-block" type="submit">Ask!</button>
+</form>
+
+{% endblock content %}
