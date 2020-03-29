@@ -1,0 +1,25 @@
+<nav aria-label="pager">
+  <ul class="pagination justify-content-center">
+    {% if object.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page=1">First</a>
+    </li>
+    <li class="page-item">
+        <a class="page-link" href="?page={{ object.previous_page_number }}">{{ object.previous_page_number }}</a>
+    </li>
+    {% endif %}
+    
+    <li class="page-item disabled">
+        <a class="page-link" href="#">{{object.number}}</a>
+    </li>
+    
+    {% if object.has_next %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{object.next_page_number}}">{{object.next_page_number}}</a>
+    </li>
+    <li class="page-item">
+        <a class="page-link" href="?page={{object.paginator.num_pages}}">Last</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
