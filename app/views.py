@@ -5,15 +5,18 @@ from django.core.paginator import Paginator
 
 from .forms import *
 
-answers = [{'pk': 1, 'votes': 5, 'author': 'Nobody', 'correct': True,
+answers = [{'pk': 1, 'votes': 5, 'author': 'NoNameFella', 'correct': True,
            'text': 'Автор вопроса может пометить один из ответов как правильный.'
                    ' Пользователи могут голосовать за вопросы и ответы с помощью '
-                   'лайков. '},
+                   'лайков. В файле base.html нужно создать основную верстку (любой)'
+                   ' страницы. Для упрощения задачи нужно скачать и использовать CSS '
+                   'библиотеку Twitter Bootstrap. Файлы (как свои CSS стили, так и файлы Bootstrap)'
+                   ' нужно разместить в директории static'},
            {'pk': 2, 'votes': 2, 'author': 'Noone', 'correct': False,
             'text': 'This works because returning false from the click event'
                     ' stops the chain of execution continuing.'}]
 
-questions = [{'id': 0, 'title': f'question # {0}', 'votes': 544, 'author': 'Guest',
+questions = [{'id': 0, 'title': f'question # {0}', 'votes': 544, 'author': 'NamedFella',
               'text': 'Листинг вопросов с пагинацией по 20 вопросов на странице. '
                       'Необходимо реализовать сортировку по дате добавления и рейтингу'
                       ' (2 вида сортировки). В шапке сайта находятся: логотип, поисковая'
