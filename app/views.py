@@ -65,7 +65,6 @@ def login(request):
 
 
 def question(request, qid):
-
     if request.method == 'POST':
         form = AnswerForm(request.POST)
         if form.is_valid():
@@ -77,3 +76,17 @@ def question(request, qid):
     ans = paginate(request, answers, 30)
     return render(request, 'question.html',
                   {'question': q, 'answers': ans, 'form': form})
+
+
+# @login_required()
+def profile_settings(request):
+    if request.method == 'POST':
+        form = ProfileSettingsForm(request.POST)
+        if form.is_valid():
+            new_login = form.cleaned_data.get('login')
+    else:
+        form = ProfileSettingsForm()
+        form.fields['login'].initial = 'Dr. Pepper'
+        form.fields['email'].initial = 'drpepper@mail.ru'
+        form.fields['nickname'].initial = 'Dr. Pepper'
+    return render(request, 'settings.html', {'form': form})

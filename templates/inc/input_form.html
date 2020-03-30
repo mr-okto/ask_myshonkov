@@ -3,11 +3,11 @@
   {% for f in form.visible_fields %}
   <div class="fieldWrapper mb-3">
     {% if f.label %}
-    <label>{{ f.label }}</label>
+    {% f.label_tag %}
     {% endif %}
     {{ f.as_widget }}
     {{ f.errors }}
   </div>
   {% endfor %}
-  <button class="btn btn-success" type="submit">{{ submit }}</button>
+  <button class="btn btn-outline-primary" type="submit">{{ submit }}</button>
 </form>

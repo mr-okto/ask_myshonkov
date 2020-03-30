@@ -23,5 +23,6 @@ urlpatterns = [
     path('', views.index,  name='index'),
     path('ask/', views.ask,  name='ask'),
     path('login/', views.login, name='login'),
-    path('question/<int:qid>/', views.question, name='question')
+    path('question/<int:qid>/', views.question, name='question'),
+    path('settings/', views.profile_settings, name='settings'),
 ]

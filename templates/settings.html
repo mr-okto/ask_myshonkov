@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load list_tags %}
+
+{% block content %}
+
+<div class="row pl-3">
+  <p class="ask-block-header">Settings: {{ user.login }}</p>
+</div>
+
+<div class="col-md-6 pl-0">
+  <form class="ask-form needs-validation mb-3" method="POST">
+    {% csrf_token %}
+    {% to_list form.login form.email form.nickname as fields_list %}
+    {% for f in fields_list %}
+    <div class="fieldWrapper form-group mb-3">
+      {{ f.label_tag }}
+      {{ f.as_widget }}
+      {{ f.errors }}
+    </div>
+    {% endfor %}
+
+    <label>Upload avatar</label>
+    <div class="form-row mb-3">
+      <img src="{% static 'img/cat.jpg' %}" id="avatar-img" class="ask-avatar-settings ml-1 rounded"/>
+    </div>
+    <div class="fieldWrapper custom-file mb-3">
+      {{ form.avatar.as_widget }}
+      <label for="avatar-file" class="custom-file-label trunc-text" id="avatar-label">Choose file</label>
+    </div>
+    <div class="form-row mb-3">
+    {{ form.avatar.errors }}
+    </div>
+    <button class="btn btn-outline-primary" type="submit">Save</button>
+  </form>
+</div>
+
+<script src="{% static 'js/askme-settings.js' %}"></script>
+
+{% endblock content %}

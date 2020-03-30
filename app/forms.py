@@ -27,10 +27,23 @@ class AskForm(forms.Form):
 
 
 class AnswerForm(forms.Form):
-    text = forms.CharField(max_length=1000,
+    text = forms.CharField(max_length=1000, label='',
                            widget=forms.Textarea(attrs={'class': 'form-control',
                                                         'placeholder': 'Enter your answer here...'}))
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['text'].label = ''
+
+class ProfileSettingsForm(forms.Form):
+    login = forms.CharField(max_length=30, required=False,
+                            widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    email = forms.EmailField(max_length=100, required=False,
+                             widget=forms.EmailInput(attrs={'class': 'form-control'}))
+
+    nickname = forms.CharField(max_length=30, required=False,
+                               widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    avatar = forms.ImageField(label='Avatar', required=False,
+                              widget=forms.FileInput(attrs={'class': 'custom-file-input',
+                                                            'id': 'avatar-file'}))
+
+
