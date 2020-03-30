@@ -42,8 +42,35 @@ class ProfileSettingsForm(forms.Form):
     nickname = forms.CharField(max_length=30, required=False,
                                widget=forms.TextInput(attrs={'class': 'form-control'}))
 
-    avatar = forms.ImageField(label='Avatar', required=False,
+    avatar = forms.ImageField(required=False,
                               widget=forms.FileInput(attrs={'class': 'custom-file-input',
                                                             'id': 'avatar-file'}))
 
 
+class LoginForm(forms.Form):
+    login = forms.CharField(max_length=30,
+                            widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    password = forms.CharField(max_length=50,
+                               widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+
+class SignupForm(forms.Form):
+    login = forms.CharField(max_length=30,
+                            widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    email = forms.EmailField(max_length=100,
+                             widget=forms.EmailInput(attrs={'class': 'form-control'}))
+
+    nickname = forms.CharField(max_length=30, required=False,
+                               widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    password = forms.CharField(max_length=50, min_length=6,
+                               widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    password_rep = forms.CharField(max_length=50, min_length=6, label='Repeat password',
+                                   widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    avatar = forms.ImageField(required=False, label='Upload avatar (optional):',
+                              widget=forms.FileInput(attrs={'class': 'custom-file-input',
+                                                            'id': 'avatar-file'}))

@@ -61,7 +61,25 @@ def ask(request):
 
 
 def login(request):
-    return HttpResponse('Login Page')
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            login_data = form.cleaned_data.get('login')
+            form.add_error('password', 'Wrong password')
+    else:
+        form = LoginForm()
+    return render(request, 'login.html', {'form': form})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            login_data = form.cleaned_data.get('login')
+            form.add_error('email', 'Email already registered')
+    else:
+        form = SignupForm()
+    return render(request, 'signup.html', {'form': form})
 
 
 def question(request, qid):

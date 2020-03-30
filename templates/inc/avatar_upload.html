@@ -1,0 +1,12 @@
+{% load static %}
+<label>{{ avatar.label }}</label>
+<div class="fieldWrapper custom-file mb-1">
+  {{ avatar.as_widget }}
+  <label for="avatar-file" class="custom-file-label trunc-text" id="avatar-label">Choose file</label>
+</div>
+<div class="form-row mb-2">{{ avatar.errors }}</div>
+<div class="form-row">
+  <img src="{{ avatar_src }}" id="avatar-img" class="ask-avatar-settings mb-3 ml-1 rounded"/>
+</div>
+
+<script src="{% static 'js/avatar_preview.js' %}"></script>

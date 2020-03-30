@@ -1,13 +1,21 @@
+{% load static %}
 <form class="ask-form needs-validation mb-3" method="POST">
   {% csrf_token %}
   {% for f in form.visible_fields %}
-  <div class="fieldWrapper mb-3">
-    {% if f.label %}
-    {% f.label_tag %}
+    {% if f.id_for_label == 'avatar-file' %}
+      {% if not avatar_src %}
+        {% static 'img/cat.jpg' as avatar_src %}
+      {% endif %}
+      {% include 'inc/avatar_upload.html' with avatar=form.avatar %}
+    {% else %}
+      <div class="fieldWrapper mb-3">
+      {% if f.label %}
+        {{ f.label_tag }}
+      {% endif %}
+      {{ f.as_widget }}
+      <div class="p-0 text-danger">{{ f.errors }}</div>
+      </div>
     {% endif %}
-    {{ f.as_widget }}
-    {{ f.errors }}
-  </div>
   {% endfor %}
-  <button class="btn btn-outline-primary" type="submit">{{ submit }}</button>
+  <button class="btn btn-outline-primary mt-3" type="submit">{{ submit }}</button>
 </form>
