@@ -18,12 +18,8 @@
   max-height: 8em;
 }
 
-.nav-link {
-  color: #4a4a4a;
-}
-
-.nav-link:hover {
-  color: #000;
+a, a:visited, a:hover, a:link, a:active {
+  text-decoration: none;
 }
 
 .ask-navbar-search {
@@ -46,8 +42,9 @@
   padding-right: 2em;
 }
 
-.ask-best-member-link {
+.ask-best-member {
   font-size: 1.2em;
+  color: #6a6a6a;
 }
 
 .ask-question .ask-question-title {
@@ -71,4 +68,21 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.ask-btn-vote {
+  padding: 0;
+  margin: 0 0.1rem;
+  font-size: 0.4rem;
+  border-radius: 0.1rem;
+}
+
+.ask-main-container {
+ min-height: 100vh;
+ padding-bottom: 3em;
+}
+
+.ask-footer {
+ bottom: 0;
+ width: 100%;
 }

@@ -17,11 +17,10 @@ class AskForm(forms.Form):
         tags = [tag.strip() for tag in self.cleaned_data['tags'].split(',')]
         tags_limit = 3
         if len(tags) > tags_limit:
-            print('Fatal tags')
             raise forms.ValidationError(f'Question must not contain more than {tags_limit} tags')
         for tag in tags:
             if not re.fullmatch(r'^[\w-]+$', tag):
-                raise forms.ValidationError('Tags must consist of letters, numbers and underscores. '
+                raise forms.ValidationError('Tags must consist of letters, numbers, hyphens and underscores. '
                                             'Use comma as a separator')
         return tags
 

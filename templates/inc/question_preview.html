@@ -6,10 +6,10 @@
       {% include 'inc/left_col.html' with votes=question.votes name=question.author %}
     </div>
     <div class="col-md-10 pl-0">
-      <a class="mt-0 mb-1 ask-question-title" href="#">{{ question.title }}</a>
-      <p class="text-justify pr-2 mt-1 mb-1">{{ question.text }}</p>
+      <a class="mt-0 mb-1 ask-question-title" href="{% url 'question' question.id %}">{{ question.title }}</a>
+      <p class="text-justify pr-2 mt-1 mb-1">{{ question.text|truncatechars:300 }}</p>
       <div class="row">
-        <a class="col-md-3 mb-2" href="#">Answer ({{ question.answers_count }})</a>
+        <a class="col-md-3 mb-2" href="{% url 'question' question.id %}#answer">Answer ({{ question.answers_count }})</a>
         <div class="col-md-9">
           {% include 'inc/question_tags.html' with tags=question.tags %}
         </div>

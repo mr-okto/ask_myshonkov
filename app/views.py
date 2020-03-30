@@ -1,9 +1,15 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponse
 from django.core.paginator import Paginator
 
 from .forms import *
+
+context = {
+    'best_users': ['John Doe', 'Mr. Freeman', 'Bender'],
+    'hot_tags': ['perl', 'python', 'TechnoPark', 'MySQL', 'django', 'MailRu', 'Chrome', 'Firefox',
+                 'Bootstrap', 'Twitter', 'ICQ'],
+}
 
 answers = [{'pk': 1, 'votes': 5, 'author': 'NoNameFella', 'correct': True,
            'text': 'Автор вопроса может пометить один из ответов как правильный.'
@@ -41,12 +47,27 @@ def paginate(request, objects, page_count):
 
 
 def index(request):
-    return render(request, 'index.html', {
-        'title': 'New questions',
-        'switch_title': 'Hot questions',
-        'switch_url': 'index',
-        'questions': paginate(request, questions, 10)
-    })
+    context['title'] = 'New questions'
+    context['switch_title'] = 'Hot questions'
+    context['switch_url'] = 'hot'
+    context['questions'] = paginate(request, questions, 10)
+    return render(request, 'index.html', context)
+
+
+def hot(request):
+    context['title'] = 'Hot questions'
+    context['switch_title'] = 'New questions'
+    context['switch_url'] = 'index'
+    context['questions'] = paginate(request, questions, 10)
+    return render(request, 'index.html', context)
+
+
+def tagged(request, tag):
+    context['title'] = f'#{tag}'
+    context['switch_title'] = 'All questions'
+    context['switch_url'] = 'index'
+    context['questions'] = paginate(request, questions, 10)
+    return render(request, 'index.html', context)
 
 
 # @login_required()
@@ -57,7 +78,8 @@ def ask(request):
             tags = form.cleaned_data.get('tags')
     else:
         form = AskForm()
-    return render(request, 'ask.html', {'form': form})
+    context['form'] = form
+    return render(request, 'ask.html', context)
 
 
 def login(request):
@@ -68,7 +90,13 @@ def login(request):
             form.add_error('password', 'Wrong password')
     else:
         form = LoginForm()
-    return render(request, 'login.html', {'form': form})
+    context['form'] = form
+    return render(request, 'login.html', context)
+
+
+def logout(request):
+    redirect_link = request.GET.get('next', '/')
+    return redirect(redirect_link)
 
 
 def register(request):
@@ -79,7 +107,8 @@ def register(request):
             form.add_error('email', 'Email already registered')
     else:
         form = SignupForm()
-    return render(request, 'signup.html', {'form': form})
+    context['form'] = form
+    return render(request, 'signup.html', context)
 
 
 def question(request, qid):
@@ -90,10 +119,10 @@ def question(request, qid):
     else:
         form = AnswerForm()
 
-    q = questions[qid]
-    ans = paginate(request, answers, 30)
-    return render(request, 'question.html',
-                  {'question': q, 'answers': ans, 'form': form})
+    context['question'] = questions[qid]
+    context['answers'] = paginate(request, answers, 30)
+    context['form'] = form
+    return render(request, 'question.html', context)
 
 
 # @login_required()
@@ -107,4 +136,6 @@ def profile_settings(request):
         form.fields['login'].initial = 'Dr. Pepper'
         form.fields['email'].initial = 'drpepper@mail.ru'
         form.fields['nickname'].initial = 'Dr. Pepper'
-    return render(request, 'settings.html', {'form': form})
+
+    context['form'] = form
+    return render(request, 'settings.html', context)

@@ -1,22 +1,17 @@
+{% load list_tags %}
+
 <div class="mt-5 mb-2 mx-2">
   <p class="ask-block-header mb-2 ml-3">Popular tags</p>
   <div class="container-fluid d-flex flex-wrap mb-2 mx-0 pl-3">
-    <a class="ask-popular-tag" style="color: Coral;" href="#">Perl</a>
-    <a class="ask-popular-tag" style="color: MediumVioletRed;" href="#">Python</a>
-    <a class="ask-popular-tag" style="color: LightSlateGray;" href="#">TechnoPark</a>
-    <a class="ask-popular-tag" style="color: DarkSalmon;" href="#">MySQL</a>
-    <a class="ask-popular-tag" style="color: DarkSlateBlue;" href="#">django</a>
-    <a class="ask-popular-tag" style="color: DarkTurquoise;" href="#">Mail.Ru</a>
-    <a class="ask-popular-tag" style="color: Maroon;" href="#">Voloshin</a>
-    <a class="ask-popular-tag" style="color: RoyalBlue;" href="#">Firefox</a>
-    <a class="ask-popular-tag" style="color: Sienna;" href="#">Chrome</a>
-    <a class="ask-popular-tag" style="color: Teal;" href="#">JavaScript</a>
+    {% color_tag_links hot_tags as links %}
+    {% for link in links %}
+    <span class="ask-popular-tag">{{ link }}</span>
+    {% endfor %}
   </div>
   <p class="ask-block-header mb-2 ml-3">Best members</p>
   <div class="container-fluid d-flex flex-column">
-    <a class="ask-best-member-link" href="#">John Doe</a>
-    <a class="ask-best-member-link" href="#">Mr. Freeman</a>
-    <a class="ask-best-member-link" href="#">Dr. House</a>
-    <a class="ask-best-member-link" href="#">Bender</a>
+    {% for user in best_users %}
+    <span class="ask-best-member">{{ user }}</span>
+    {% endfor %}
   </div>
 </div>

@@ -4,7 +4,7 @@
 
 <div class="row mb-2 pl-3">
   <p class="ask-block-header align-self-baseline mr-3">{{ title }}</p>
-  <a class="ask-list-inactive-header align-self-baseline" href={% url switch_url %} >{{ switch_title }}</a>
+  <a class="ask-list-inactive-header nav-link align-self-baseline" href="{% url switch_url %}" >{{ switch_title }}</a>
 </div>
 
 {% for question in questions %}
