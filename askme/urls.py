@@ -21,7 +21,6 @@ from django.urls import path
 from app import views
 
 urlpatterns = [
-    # path('admin/', admin.site.urls),
     path('', views.index,  name='index'),
     path('hot/', views.hot,  name='hot'),
     path('tag/<slug:tag>/', views.tagged, name='tagged'),
@@ -31,4 +30,5 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('question/<int:qid>/', views.question, name='question'),
     path('settings/', views.profile_settings, name='settings'),
+    path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
