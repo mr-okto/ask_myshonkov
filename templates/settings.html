@@ -5,11 +5,11 @@
 {% block content %}
 
 <div class="row pl-3">
-  <p class="ask-block-header">Settings: {{ user.login }}</p>
+  <p class="ask-block-header">Settings: {{ user.profile.nickname }}</p>
 </div>
 
 <div class="col-md-6 pl-0">
-  {% include 'inc/input_form.html' with submit='Save' avatar_src={{ MEDIA_URL }}{{user.profile.avatar.url}} %}
+  {% include 'inc/input_form.html' with submit='Save' avatar_src='{{ MEDIA_URL }}{{ user.profile.avatar.url }}' %}
 </div>
 
 {% endblock content %}

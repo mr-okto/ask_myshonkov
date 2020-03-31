@@ -15,7 +15,7 @@
       </li>
       {% if user.is_authenticated %}
       <li class="nav-item active mr-3">
-        <form action="{% url 'ask' %}">
+        <form action="{% url 'ask' %}">{% csrf_token %}
           <input class = "btn btn-success" type="submit" value="Ask!" />
         </form>
       </li>
@@ -29,19 +29,19 @@
       <li class="nav-item">
       <div class="col">
       <div class="row mb-n1 ">
-        <div class="nav-item ask-navbar-username ml-2 pt-1">{{ user.profile.username }}</div>
+        <div class="nav-item ask-navbar-username ml-2 pt-1">{{ user.profile.nickname }}</div>
       </div>
       <div class="row">
-        <a class="nav-link mr-2" href="{% url 'settings' %}">Settings</a>
-        <a class="nav-link" href="{% url 'logout' %}">Log out</a>
+        <a class="nav-link mr-2" href="{% url 'settings' %}?next={{ request.path|urlencode }}">Settings</a>
+        <a class="nav-link" href="{% url 'logout' %}?next={{ request.path|urlencode }}">Log out</a>
       </div>
       </div>
       </li>
       {% else %}
       <li class="nav-item">
         <div class="row">
-          <a class="nav-link mr-2" href="{% url 'login' %}">Log in</a>
-          <a class="nav-link" href="{% url 'register' %}">Sign up</a>
+          <a class="nav-link mr-2" href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in</a>
+          <a class="nav-link" href="{% url 'register' %}?next={{ request.path|urlencode }}">Sign up</a>
         </div>
       </li>
       {% endif %}

@@ -1,66 +1,31 @@
+from os import path
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError, FieldError
 from django.contrib.auth.models import User
-from os import path
+
+DEFAULT_AVATAR = path.join('uploads', 'avatar_placeholder.png')
 
 
 class ProfileManager(models.Manager):
-    def username_exists(self, username):
-        return User.objects.filter(username=username).exists()
-
-    def nickname_exists(self, nickname):
-        return self.filter(nickname=nickname).exists()
-
-    def email_exists(self, email):
-        return User.objects.filter(email=email).exists()
-
     def get_top(self, count):
         return self.order_by('-reputation')[:count]
+
+    def create_profile(self, username, email, nickname, password, avatar=None):
+        if not avatar:
+            avatar = DEFAULT_AVATAR
+        user = User.objects.create_user(username, email, password)
+        return self.create(user=user, nickname=nickname, avatar=avatar)
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nickname = models.CharField(max_length=30, unique=True)
     reputation = models.IntegerField(default=0)
-    avatar = models.ImageField(upload_to='uploads',
-                               default=path.join('uploads', 'avatar_placeholder.jpg'))
+    avatar = models.ImageField(upload_to='uploads', default=DEFAULT_AVATAR)
     objects = ProfileManager()
-
-    def update_username(self, username):
-        if Profile.objects.username_exists(username):
-            return False
-        self.user.username = username
-        self.user.save()
-        return True
-
-    def update_nickname(self, nickname):
-        if Profile.objects.nickname_exists(nickname):
-            return False
-        self.user.username = nickname
-        self.user.save()
-        return True
-
-    def update_email(self, email):
-        if Profile.objects.email_exists(email):
-            return False
-        self.user.email = email
-        self.user.save()
-        return True
-
-    def update_reputation(self, rep_change):
-        self.reputation += rep_change
-        self.save()
-        return True
-
-    def update_avatar(self, avatar):
-        if not avatar:
-            avatar = self.avatar.default
-        self.avatar = avatar
-        self.save()
-        return True
 
     def __str__(self):
         return self.nickname

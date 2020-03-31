@@ -1,7 +1,9 @@
+from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse
 from django.core.paginator import Paginator
+from django.urls import reverse
 
 from .forms import *
 from .models import *
@@ -12,6 +14,13 @@ context = {
 }
 
 
+def redirect_next(request):
+    link = request.POST.get('next', request.GET.get('next', ''))
+    if not link:
+        link = reverse('index')
+    return redirect(link)
+
+
 def paginate(request, objects, page_count):
     paginator = Paginator(objects, page_count)
     page_ind = request.GET.get('page', 1)
@@ -20,7 +29,6 @@ def paginate(request, objects, page_count):
 
 
 def index(request):
-    print(request.user)
     context['title'] = 'New questions'
     context['switch_title'] = 'Hot questions'
     context['switch_url'] = 'hot'
@@ -56,29 +64,43 @@ def ask(request):
     return render(request, 'ask.html', context)
 
 
-def login(request):
+def log_in(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            login_data = form.cleaned_data.get('login')
-            form.add_error('password', 'Wrong password')
+            user = auth.authenticate(username=form.cleaned_data.get('login'),
+                                     password=form.cleaned_data.get('password'))
+            if user:
+                auth.login(request, user)
+                return redirect_next(request)
+            else:
+                form.add_error('password', 'Login and password do not match')
     else:
         form = LoginForm()
     context['form'] = form
     return render(request, 'login.html', context)
 
 
-def logout(request):
-    redirect_link = request.GET.get('next', '/')
-    return redirect(redirect_link)
+def log_out(request):
+    auth.logout(request)
+    return redirect_next(request)
 
 
 def register(request):
     if request.method == 'POST':
-        form = SignupForm(request.POST)
+        form = SignupForm(request.POST, request.FILES)
         if form.is_valid():
-            login_data = form.cleaned_data.get('login')
-            form.add_error('email', 'Email already registered')
+            username = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
+            nickname = form.cleaned_data.get('nickname')
+            password = form.cleaned_data.get('password')
+            avatar = form.cleaned_data.get('avatar')
+            profile = Profile.objects.create_profile(
+                username=username, email=email, nickname=nickname,
+                password=password, avatar=avatar)
+
+            auth.login(request, profile.user)
+            return redirect_next(request)
     else:
         form = SignupForm()
     context['form'] = form
@@ -99,10 +121,10 @@ def question(request, qid):
     return render(request, 'question.html', context)
 
 
-# @login_required()
+@login_required()
 def profile_settings(request):
     if request.method == 'POST':
-        form = ProfileSettingsForm(request.POST)
+        form = ProfileSettingsForm(request.POST, request.FILES)
         if form.is_valid():
             new_login = form.cleaned_data.get('login')
     else:
