@@ -1,11 +1,8 @@
 {% load static %}
-<form class="ask-form needs-validation mb-3" method="POST">
+<form class="ask-form needs-validation mb-3" method="POST" enctype="multipart/form-data">
   {% csrf_token %}
   {% for f in form.visible_fields %}
     {% if f.id_for_label == 'avatar-file' %}
-      {% if not avatar_src %}
-        {% static 'img/cat.jpg' as avatar_src %}
-      {% endif %}
       {% include 'inc/avatar_upload.html' with avatar=form.avatar %}
     {% else %}
       <div class="fieldWrapper mb-3">

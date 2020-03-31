@@ -23,7 +23,7 @@ from app import views
 urlpatterns = [
     path('', views.index,  name='index'),
     path('hot/', views.hot,  name='hot'),
-    path('tag/<slug:tag>/', views.tagged, name='tagged'),
+    path('tag/<slug:tag_name>/', views.tagged, name='tagged'),
     path('ask/', views.ask,  name='ask'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
@@ -31,4 +31,7 @@ urlpatterns = [
     path('question/<int:qid>/', views.question, name='question'),
     path('settings/', views.profile_settings, name='settings'),
     path('admin/', admin.site.urls),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

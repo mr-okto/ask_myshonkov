@@ -1,42 +1,15 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse
 from django.core.paginator import Paginator
 
 from .forms import *
+from .models import *
 
 context = {
-    'best_users': ['John Doe', 'Mr. Freeman', 'Bender'],
-    'hot_tags': ['perl', 'python', 'TechnoPark', 'MySQL', 'django', 'MailRu', 'Chrome', 'Firefox',
-                 'Bootstrap', 'Twitter', 'ICQ'],
+    'best_users': Profile.objects.get_top(10),
+    'hot_tags': Tag.objects.get_top(20),
 }
-
-answers = [{'pk': 1, 'votes': 5, 'author': 'NoNameFella', 'correct': True,
-           'text': 'Автор вопроса может пометить один из ответов как правильный.'
-                   ' Пользователи могут голосовать за вопросы и ответы с помощью '
-                   'лайков. В файле base.html нужно создать основную верстку (любой)'
-                   ' страницы. Для упрощения задачи нужно скачать и использовать CSS '
-                   'библиотеку Twitter Bootstrap. Файлы (как свои CSS стили, так и файлы Bootstrap)'
-                   ' нужно разместить в директории static'},
-           {'pk': 2, 'votes': 2, 'author': 'Noone', 'correct': False,
-            'text': 'This works because returning false from the click event'
-                    ' stops the chain of execution continuing.'}]
-
-questions = [{'id': 0, 'title': f'question # {0}', 'votes': 544, 'author': 'NamedFella',
-              'text': 'Листинг вопросов с пагинацией по 20 вопросов на странице. '
-                      'Необходимо реализовать сортировку по дате добавления и рейтингу'
-                      ' (2 вида сортировки). В шапке сайта находятся: логотип, поисковая'
-                      ' строка (для быстрого поиска по заголовку и содержимому вопроса), '
-                      'кнопка задать вопрос (доступна только авторизованным). '
-                      'В правой части шапки - юзерблок. ',
-              'answers_count': 35,
-              'tags': ['tag1', 'tag2', 'tag3']},
-             {'id': 1, 'title': f'question # {1}', 'votes': 2, 'author': 'Kotk',
-              'text': 'Для авторизованного пользователя юзерблок содержит его ник',
-              'answers_count': 3,
-              'tags': ['tag1', 'tag2']}]
-
-questions *= 30
 
 
 def paginate(request, objects, page_count):
@@ -47,10 +20,11 @@ def paginate(request, objects, page_count):
 
 
 def index(request):
+    print(request.user)
     context['title'] = 'New questions'
     context['switch_title'] = 'Hot questions'
     context['switch_url'] = 'hot'
-    context['questions'] = paginate(request, questions, 10)
+    context['questions'] = paginate(request, Question.objects.get_new(), 10)
     return render(request, 'index.html', context)
 
 
@@ -58,19 +32,19 @@ def hot(request):
     context['title'] = 'Hot questions'
     context['switch_title'] = 'New questions'
     context['switch_url'] = 'index'
-    context['questions'] = paginate(request, questions, 10)
+    context['questions'] = paginate(request, Question.objects.get_hot(), 10)
     return render(request, 'index.html', context)
 
 
-def tagged(request, tag):
-    context['title'] = f'#{tag}'
+def tagged(request, tag_name):
+    context['title'] = f'#{tag_name}'
     context['switch_title'] = 'All questions'
     context['switch_url'] = 'index'
-    context['questions'] = paginate(request, questions, 10)
+    context['questions'] = paginate(request, Question.objects.get_tagged(tag_name), 10)
     return render(request, 'index.html', context)
 
 
-# @login_required()
+@login_required()
 def ask(request):
     if request.method == 'POST':
         form = AskForm(request.POST)
@@ -118,9 +92,9 @@ def question(request, qid):
             text = form.cleaned_data.get('text')
     else:
         form = AnswerForm()
-
-    context['question'] = questions[qid]
-    context['answers'] = paginate(request, answers, 30)
+    q = get_object_or_404(Question, pk=qid)
+    context['question'] = q
+    context['answers'] = paginate(request, q.answer_set.all(), 30)
     context['form'] = form
     return render(request, 'question.html', context)
 

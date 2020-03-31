@@ -4,13 +4,13 @@
 <div class="container-fluid ask-question p-0 my-4">
   <div class="row">
     <div class="col-md-3">
-      {% include 'inc/left_col.html' with votes=question.votes name=question.author %}
+      {% include 'inc/left_col.html' with votes=question.rating profile=question.author %}
     </div>
-    <div class="col-md-9 pl-0">
+    <div class="col-md-9">
       <p class="mt-0 mb-1 ask-question-title">{{ question.title }}</p>
       <p class="text-justify pl-0 pr-2 mb-1">{{ question.text }}</p>
       <div class="row mx-0">
-        {% include 'inc/question_tags.html' with tags=question.tags %}
+        {% include 'inc/question_tags.html' with tags=question.tags.all %}
       </div>
     </div>
   </div>

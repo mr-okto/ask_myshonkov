@@ -26,7 +26,7 @@ class Profile(models.Model):
     nickname = models.CharField(max_length=30, unique=True)
     reputation = models.IntegerField(default=0)
     avatar = models.ImageField(upload_to='uploads',
-                               default=path.join(settings.STATIC_URL, 'img', 'avatar_placeholder.jpg'))
+                               default=path.join('uploads', 'avatar_placeholder.jpg'))
     objects = ProfileManager()
 
     def update_username(self, username):
@@ -63,7 +63,7 @@ class Profile(models.Model):
         return True
 
     def __str__(self):
-        return self.user.username
+        return self.nickname
 
 
 class LikeManager(models.Manager):
@@ -100,7 +100,7 @@ class TagManager(models.Manager):
     def get_top(self, quantity):
         top_tags = [{'tag': None, 'count': 0} for _ in range(quantity)]
         for tag in self.all():
-            tag_count = Question.objects.filter(tags=tag)
+            tag_count = Question.objects.filter(tags=tag).count()
             if top_tags[-1]['count'] < quantity:
                 top_tags[-1]['tag'] = tag
                 top_tags[-1]['count'] = tag_count
@@ -191,3 +191,6 @@ class Answer(models.Model):
             return False
         self.is_right = is_right
         self.save()
+
+    class Meta:
+        ordering = ['creation_dt']

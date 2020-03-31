@@ -1,16 +1,17 @@
 {% load static %}
 
 <div class="text-center">
-  <img class="ask-avatar-thumb pt-2" src="{% static 'img/cat.jpg' %}">
-  <span class="px-1 py-0 ask-left-col-name">{{ name }}</span>
-  <input type="hidden" id="myVar" name="variable" value="{{ variable }}">
-  <div class="row justify-content-center">
-      <button class="btn ask-btn-vote">
-        <img src="{% static 'svg/arrow_up.svg' %}">
-      </button>
-    <span class="ask-votes-count">{{ votes }}</span>
-    <button class="btn ask-btn-vote">
-      <img src="{% static 'svg/arrow_down.svg' %}">
-    </button>
+  <img class="ask-avatar-thumb mt-1 mx-1" src="{{ MEDIA_ROOT }}{{ profile.avatar.url }}"/>
+  <div class="row justify-content-center pl-2 pt-1">
+  <span class="ask-left-col-name trunc-text">{{ profile.nickname }}</span>
   </div>
+  <div class="row justify-content-center">
+    <button class="btn ask-btn-vote">
+      <img src="{% static 'svg/arrow_up.svg' %}">
+    </button>
+  <span class="ask-votes-count">{{ votes }}</span>
+  <button class="btn ask-btn-vote">
+    <img src="{% static 'svg/arrow_down.svg' %}">
+  </button>
+</div>
 </div>

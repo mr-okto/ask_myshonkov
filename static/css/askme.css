@@ -9,8 +9,10 @@
 
 .ask-avatar-thumb {
   width: 100%;
-  object-fit: contain;
+  height: 100%;
+  border-radius: 5%;
   max-height: 6em;
+  object-fit: contain;
 }
 
 .ask-avatar-settings {
@@ -57,7 +59,6 @@ a, a:visited, a:hover, a:link, a:active {
 
 .ask-left-col-name {
   font-size: 0.75em;
-  word-break: break-all;
 }
 
 .footer-text {
