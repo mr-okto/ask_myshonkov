@@ -16,9 +16,13 @@ class AskForm(forms.Form):
     def clean_tags(self):
         tags = [tag.strip() for tag in self.cleaned_data['tags'].split(',')]
         tags_limit = 3
+        tag_len = 30
         if len(tags) > tags_limit:
             raise forms.ValidationError(f'Question must not contain more than {tags_limit} tags')
         for tag in tags:
+            if len(tag) > tag_len:
+                raise forms.ValidationError(f'Tag length must not exceed {tag_len} symbols')
+
             if not re.fullmatch(r'^[\w-]+$', tag):
                 raise forms.ValidationError('Tags must consist of letters, numbers, hyphens and underscores. '
                                             'Use comma as a separator')
