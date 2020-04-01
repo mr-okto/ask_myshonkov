@@ -3,7 +3,24 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 import re
 
+from django.forms import ModelForm
+
 from app.models import Profile
+
+
+def validate_username_unused(username):
+    if User.objects.filter(username=username).exists():
+        raise forms.ValidationError('Username already registered')
+
+
+def validate_nickname_unused(nickname):
+    if Profile.objects.filter(nickname=nickname).exists():
+        raise forms.ValidationError('Nickname already registered')
+
+
+def validate_email_unused(email):
+    if User.objects.filter(email=email).exists():
+        raise forms.ValidationError('E-mail already registered')
 
 
 class AskForm(forms.Form):
@@ -13,7 +30,7 @@ class AskForm(forms.Form):
     text = forms.CharField(max_length=1000,
                            widget=forms.Textarea(attrs={'class': 'form-control'}))
 
-    tags = forms.CharField(max_length=100, required=False,
+    tags = forms.CharField(max_length=100, required=False, label_suffix=' (optional):',
                            widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     def clean_tags(self):
@@ -39,18 +56,40 @@ class AnswerForm(forms.Form):
 
 
 class ProfileSettingsForm(forms.Form):
-    username = forms.CharField(max_length=30, label='Login', required=False,
+    username = forms.CharField(max_length=30, label='Login',
                                widget=forms.TextInput(attrs={'class': 'form-control'}))
 
-    email = forms.EmailField(max_length=100, required=False,
+    email = forms.EmailField(max_length=100,
                              widget=forms.EmailInput(attrs={'class': 'form-control'}))
 
-    nickname = forms.CharField(max_length=30, required=False,
+    nickname = forms.CharField(max_length=30,
                                widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     avatar = forms.ImageField(required=False,
                               widget=forms.FileInput(attrs={'class': 'custom-file-input',
                                                             'id': 'avatar-file'}))
+
+    # Form returns only modified fields
+    def clean_username(self):
+        if 'username' not in self.changed_data:
+            return
+        username = self.cleaned_data['username']
+        validate_username_unused(username)
+        return username
+
+    def clean_email(self):
+        if 'email' not in self.changed_data:
+            return
+        email = self.cleaned_data['email']
+        validate_email_unused(email)
+        return email
+
+    def clean_nickname(self):
+        if 'nickname' not in self.changed_data:
+            return
+        nickname = self.cleaned_data['nickname']
+        validate_nickname_unused(nickname)
+        return nickname
 
 
 class LoginForm(forms.Form):
@@ -63,12 +102,15 @@ class LoginForm(forms.Form):
 
 class SignupForm(forms.Form):
     username = forms.CharField(max_length=30, label='Login',
+                               validators=[validate_username_unused],
                                widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     email = forms.EmailField(max_length=100,
+                             validators=[validate_email_unused],
                              widget=forms.EmailInput(attrs={'class': 'form-control'}))
 
     nickname = forms.CharField(max_length=30, required=False,
+                               validators=[validate_nickname_unused],
                                widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     password = forms.CharField(max_length=50, min_length=6,
@@ -80,24 +122,6 @@ class SignupForm(forms.Form):
     avatar = forms.ImageField(required=False, label='Upload avatar (optional):',
                               widget=forms.FileInput(attrs={'class': 'custom-file-input',
                                                             'id': 'avatar-file'}))
-
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-        if Profile.objects.filter(user__username=username).exists():
-            raise forms.ValidationError('Username already registered')
-        return username
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if Profile.objects.filter(user__email=email).exists():
-            raise forms.ValidationError('E-mail already registered')
-        return email
-
-    def clean_nickname(self):
-        nickname = self.cleaned_data.get('nickname')
-        if Profile.objects.filter(nickname=nickname).exists():
-            raise forms.ValidationError('Nickname already registered')
-        return nickname
 
     def clean(self):
         cleaned_data = super().clean()

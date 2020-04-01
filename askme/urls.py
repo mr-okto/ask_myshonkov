@@ -22,13 +22,13 @@ from app import views
 
 urlpatterns = [
     path('', views.index,  name='index'),
-    path('hot/', views.hot,  name='hot'),
-    path('tag/<slug:tag_name>/', views.tagged, name='tagged'),
+    path('hot/', views.hot_questions, name='hot'),
+    path('tag/<slug:tag_name>/', views.tagged_questions, name='tagged'),
     path('ask/', views.ask,  name='ask'),
     path('login/', views.log_in, name='login'),
     path('logout/', views.log_out, name='logout'),
     path('register/', views.register, name='register'),
-    path('question/<int:qid>/', views.question, name='question'),
+    path('question/<int:qid>/', views.view_question, name='question'),
     path('settings/', views.profile_settings, name='settings'),
     path('admin/', admin.site.urls),
 ]

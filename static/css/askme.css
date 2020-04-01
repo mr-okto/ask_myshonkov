@@ -12,7 +12,7 @@
   height: 100%;
   border-radius: 5%;
   max-height: 6em;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .ask-avatar-settings {

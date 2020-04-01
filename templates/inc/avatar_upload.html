@@ -6,7 +6,7 @@
 </div>
 <div class="form-row mb-2">{{ avatar.errors }}</div>
 <div class="form-row">
-  <img src="{{ avatar_src }}" id="avatar-img" class="ask-avatar-settings mb-3 ml-1 rounded"/>
+  <img src="{{ MEDIA_URL }}{{ user.profile.avatar.url }}" id="avatar-img" class="ask-avatar-settings mb-3 ml-1 rounded"/>
 </div>
 
 <script src="{% static 'js/avatar_preview.js' %}"></script>

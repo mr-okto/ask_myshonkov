@@ -36,7 +36,7 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-def hot(request):
+def hot_questions(request):
     context['title'] = 'Hot questions'
     context['switch_title'] = 'New questions'
     context['switch_url'] = 'index'
@@ -44,7 +44,7 @@ def hot(request):
     return render(request, 'index.html', context)
 
 
-def tagged(request, tag_name):
+def tagged_questions(request, tag_name):
     context['title'] = f'#{tag_name}'
     context['switch_title'] = 'All questions'
     context['switch_url'] = 'index'
@@ -52,12 +52,34 @@ def tagged(request, tag_name):
     return render(request, 'index.html', context)
 
 
+def view_question(request, qid):
+    q = get_object_or_404(Question, pk=qid)
+    if request.user.is_authenticated and request.method == 'POST':
+        form = AnswerForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data.get('text')
+            Answer.objects.create(question=q, author=request.user.profile, text=text)
+            form = AnswerForm()
+    else:
+        form = AnswerForm()
+
+    context['question'] = q
+    context['answers'] = paginate(request, q.answer_set.all(), 30)
+    context['form'] = form
+    return render(request, 'question.html', context)
+
+
 @login_required()
 def ask(request):
     if request.method == 'POST':
         form = AskForm(request.POST)
         if form.is_valid():
+            title = form.cleaned_data.get('title')
+            text = form.cleaned_data.get('text')
             tags = form.cleaned_data.get('tags')
+            Question.objects.create_question(author=request.user.profile,
+                                             title=title, text=text, tags=tags)
+            return redirect_next(request)
     else:
         form = AskForm()
     context['form'] = form
@@ -87,6 +109,9 @@ def log_out(request):
 
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect_next(request)
+
     if request.method == 'POST':
         form = SignupForm(request.POST, request.FILES)
         if form.is_valid():
@@ -107,31 +132,24 @@ def register(request):
     return render(request, 'signup.html', context)
 
 
-def question(request, qid):
-    if request.method == 'POST':
-        form = AnswerForm(request.POST)
-        if form.is_valid():
-            text = form.cleaned_data.get('text')
-    else:
-        form = AnswerForm()
-    q = get_object_or_404(Question, pk=qid)
-    context['question'] = q
-    context['answers'] = paginate(request, q.answer_set.all(), 30)
-    context['form'] = form
-    return render(request, 'question.html', context)
-
-
 @login_required()
 def profile_settings(request):
+    initial = {'username': request.user.username,
+               'email': request.user.email,
+               'nickname': request.user.profile.nickname}
     if request.method == 'POST':
-        form = ProfileSettingsForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_login = form.cleaned_data.get('login')
+        form = ProfileSettingsForm(request.POST, request.FILES, initial=initial)
+        if form.is_valid() and form.has_changed():
+            username = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
+            nickname = form.cleaned_data.get('nickname')
+            avatar = form.cleaned_data.get('avatar')
+            profile = request.user.profile
+            profile.update_profile(username=username, email=email,
+                                   nickname=nickname, avatar=avatar)
+            auth.logout(request)
+            auth.login(request, profile.user)
     else:
-        form = ProfileSettingsForm()
-        form.fields['login'].initial = 'Dr. Pepper'
-        form.fields['email'].initial = 'drpepper@mail.ru'
-        form.fields['nickname'].initial = 'Dr. Pepper'
-
+        form = ProfileSettingsForm(initial=initial)
     context['form'] = form
     return render(request, 'settings.html', context)

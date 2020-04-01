@@ -27,6 +27,26 @@ class Profile(models.Model):
     avatar = models.ImageField(upload_to='uploads', default=DEFAULT_AVATAR)
     objects = ProfileManager()
 
+    def update_profile(self, username=None, email=None, nickname=None, avatar=None):
+        user_modified = False
+        profile_modified = False
+        if username and self.user.username != username:
+            self.user.username = username
+            user_modified = True
+        if email and self.user.email != email:
+            self.user.email = email
+            user_modified = True
+        if nickname and self.nickname != nickname:
+            self.nickname = nickname
+            profile_modified = True
+        if avatar and self.avatar != avatar:
+            self.avatar = avatar
+            profile_modified = True
+        if user_modified:
+            self.user.save()
+        if profile_modified:
+            self.save()
+
     def __str__(self):
         return self.nickname
 
@@ -96,6 +116,11 @@ class QuestionManager(models.Manager):
     def get_tagged(self, tag_name):
         return self.filter(tags__name=tag_name)
 
+    def create_question(self, author, title, text, tags):
+        q = self.create(author=author, title=title, text=text)
+        q.add_tags(tags)
+        return q
+
 
 class Question(models.Model):
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
@@ -114,7 +139,7 @@ class Question(models.Model):
     def add_tags(self, tags):
         for tag in tags:
             self.tags.add(Tag.objects.get_or_create(name=tag)[0])
-            self.save()
+        self.save()
 
     def add_like(self, from_profile, is_positive=True):
         rating_delta = Like.objects.add_like(author=from_profile, content_object=self,
@@ -122,7 +147,8 @@ class Question(models.Model):
         if rating_delta:
             self.rating += rating_delta
             self.save()
-            self.author.update_reputation(rating_delta)
+            self.author.reputation += rating_delta
+            self.author.save()
             return True
         return False
 
@@ -147,7 +173,8 @@ class Answer(models.Model):
         if rating_delta:
             self.rating += rating_delta
             self.save()
-            self.author.update_reputation(rating_delta)
+            self.author.reputation += rating_delta
+            self.author.save()
             return True
         return False
 
