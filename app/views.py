@@ -16,7 +16,7 @@ context = {
 
 
 def redirect_next(request):
-    link = request.POST.get('next', request.GET.get('next', ''))
+    link = request.POST.get('continue', request.GET.get('continue', ''))
     if not link:
         link = reverse('index')
     return redirect(link)
