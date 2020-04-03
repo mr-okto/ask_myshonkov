@@ -1,5 +1,6 @@
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse
 from django.core.paginator import Paginator
@@ -21,8 +22,14 @@ def redirect_next(request):
     return redirect(link)
 
 
-def paginate(request, objects, page_count):
+def paginate(request, objects, page_count, tagret=None):
     paginator = Paginator(objects, page_count)
+    if tagret is not None:
+        for i in paginator.page_range:
+            if tagret in paginator.get_page(i).object_list:
+                page = paginator.get_page(i)
+                return page
+
     page_ind = request.GET.get('page', 1)
     page = paginator.get_page(page_ind)
     return page
@@ -52,19 +59,25 @@ def tagged_questions(request, tag_name):
     return render(request, 'index.html', context)
 
 
-def view_question(request, qid):
+def view_question(request, qid, ans_id=0):
     q = get_object_or_404(Question, pk=qid)
     if request.user.is_authenticated and request.method == 'POST':
         form = AnswerForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data.get('text')
-            Answer.objects.create(question=q, author=request.user.profile, text=text)
-            form = AnswerForm()
+            answer = Answer.objects.create(question=q,
+                                           author=request.user.profile, text=text)
+            redir_url = f"{reverse('question_answer', kwargs={'qid': q.pk, 'ans_id': answer.pk})}#{answer.pk}"
+            return redirect(redir_url)
     else:
         form = AnswerForm()
 
+    try:
+        answer = Answer.objects.get(pk=ans_id)
+    except ObjectDoesNotExist:
+        answer = None
     context['question'] = q
-    context['answers'] = paginate(request, q.answer_set.all(), 30)
+    context['answers'] = paginate(request, q.answer_set.all(), 30, answer)
     context['form'] = form
     return render(request, 'question.html', context)
 
@@ -77,9 +90,10 @@ def ask(request):
             title = form.cleaned_data.get('title')
             text = form.cleaned_data.get('text')
             tags = form.cleaned_data.get('tags')
-            Question.objects.create_question(author=request.user.profile,
-                                             title=title, text=text, tags=tags)
-            return redirect_next(request)
+            question = Question.objects.create_question(author=request.user.profile,
+                                                        title=title, text=text,
+                                                        tag_names=tags)
+            return redirect(reverse('question', question.pk))
     else:
         form = AskForm()
     context['form'] = form

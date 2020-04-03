@@ -1,5 +1,5 @@
 from os import path
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.conf import settings
@@ -54,23 +54,28 @@ class Profile(models.Model):
 class LikeManager(models.Manager):
     def add_like(self, author, content_object, is_positive):
         rating_delta = 1 if is_positive else (-1)
-        likes = self.filter(author=author, content_object=content_object)
+        likes = content_object.likes.filter(author=author)
         if not likes:
-            self.add(author=author, content_object=content_object, is_positive=is_positive)
-            return rating_delta
-        if not likes.filter(is_positive=is_positive).exists():
+            self.create(author=author, content_object=content_object, is_positive=is_positive)
+        elif not likes.filter(is_positive=is_positive).exists():
             # Flip sign
             likes.update(is_positive=is_positive)
-            return rating_delta * 2
+            rating_delta *= 2
         else:
             # Like has already been set
-            return 0
+            rating_delta = 0
+
+        if rating_delta:
+            content_object.author.reputation += rating_delta
+            content_object.author.save()
+            content_object.rating += rating_delta
+            content_object.save()
 
 
 class Like(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     is_positive = models.BooleanField(default=True)
@@ -116,9 +121,9 @@ class QuestionManager(models.Manager):
     def get_tagged(self, tag_name):
         return self.filter(tags__name=tag_name)
 
-    def create_question(self, author, title, text, tags):
+    def create_question(self, author, title, text, tag_names):
         q = self.create(author=author, title=title, text=text)
-        q.add_tags(tags)
+        q.add_tags(tag_names)
         return q
 
 
@@ -127,6 +132,7 @@ class Question(models.Model):
     title = models.CharField(max_length=140)
     text = models.CharField(max_length=1000)
     tags = models.ManyToManyField(Tag, blank=True)
+    likes = GenericRelation(Like, related_query_name='question')
     creation_dt = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
     is_open = models.BooleanField(default=True)
@@ -136,21 +142,13 @@ class Question(models.Model):
     def __str__(self):
         return self.title
 
-    def add_tags(self, tags):
-        for tag in tags:
-            self.tags.add(Tag.objects.get_or_create(name=tag)[0])
+    def add_tags(self, tag_names):
+        for name in tag_names:
+            self.tags.add(Tag.objects.get_or_create(name=name)[0])
         self.save()
 
     def add_like(self, from_profile, is_positive=True):
-        rating_delta = Like.objects.add_like(author=from_profile, content_object=self,
-                                             is_positive=is_positive)
-        if rating_delta:
-            self.rating += rating_delta
-            self.save()
-            self.author.reputation += rating_delta
-            self.author.save()
-            return True
-        return False
+        Like.objects.add_like(author=from_profile, content_object=self, is_positive=is_positive)
 
     class Meta:
         ordering = ['-creation_dt']
@@ -161,6 +159,7 @@ class Answer(models.Model):
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     text = models.TextField()
     rating = models.IntegerField(default=0)
+    likes = GenericRelation(Like, related_query_name='question')
     creation_dt = models.DateTimeField(auto_now_add=True)
     is_right = models.BooleanField(default=False)
 
@@ -168,15 +167,7 @@ class Answer(models.Model):
         return f'#{self.question} by {self.author}'
 
     def add_like(self, from_profile, is_positive=True):
-        rating_delta = Like.objects.add_like(author=from_profile, content_object=self,
-                                             is_positive=is_positive)
-        if rating_delta:
-            self.rating += rating_delta
-            self.save()
-            self.author.reputation += rating_delta
-            self.author.save()
-            return True
-        return False
+        Like.objects.add_like(author=from_profile, content_object=self, is_positive=is_positive)
 
     def set_right(self, from_profile, is_right=True):
         if from_profile != self.author:
