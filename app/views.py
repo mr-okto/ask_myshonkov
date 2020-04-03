@@ -65,19 +65,18 @@ def view_question(request, qid, ans_id=0):
         form = AnswerForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data.get('text')
-            answer = Answer.objects.create(question=q,
-                                           author=request.user.profile, text=text)
-            redir_url = f"{reverse('question_answer', kwargs={'qid': q.pk, 'ans_id': answer.pk})}#{answer.pk}"
+            ans = Answer.objects.create(question=q,
+                                        author=request.user.profile, text=text)
+            redir_url = f"{reverse('question_answer', kwargs={'qid': q.pk, 'ans_id': ans.pk})}#{ans.pk}"
             return redirect(redir_url)
     else:
         form = AnswerForm()
-
     try:
-        answer = Answer.objects.get(pk=ans_id)
+        ans = Answer.objects.get(pk=ans_id)
     except ObjectDoesNotExist:
-        answer = None
+        ans = None
     context['question'] = q
-    context['answers'] = paginate(request, q.answer_set.all(), 30, answer)
+    context['answers'] = paginate(request, q.answer_set.all(), 30, ans)
     context['form'] = form
     return render(request, 'question.html', context)
 
