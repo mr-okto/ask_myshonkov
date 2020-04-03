@@ -29,7 +29,6 @@ urlpatterns = [
     path('logout/', views.log_out, name='logout'),
     path('register/', views.register, name='register'),
     path('question/<int:qid>/', views.view_question, name='question'),
-    path('question/<int:qid>/<int:ans_id>/', views.view_question, name='question_answer'),
     path('settings/', views.profile_settings, name='settings'),
     path('admin/', admin.site.urls),
 ]

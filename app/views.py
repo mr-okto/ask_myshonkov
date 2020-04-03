@@ -59,7 +59,7 @@ def tagged_questions(request, tag_name):
     return render(request, 'index.html', context)
 
 
-def view_question(request, qid, ans_id=0):
+def view_question(request, qid):
     q = get_object_or_404(Question, pk=qid)
     if request.user.is_authenticated and request.method == 'POST':
         form = AnswerForm(request.POST)
@@ -67,14 +67,19 @@ def view_question(request, qid, ans_id=0):
             text = form.cleaned_data.get('text')
             ans = Answer.objects.create(question=q,
                                         author=request.user.profile, text=text)
-            redir_url = f"{reverse('question_answer', kwargs={'qid': q.pk, 'ans_id': ans.pk})}#{ans.pk}"
+            redir_url = f"{reverse('question', kwargs={'qid': qid})}?ans_id={ans.pk}#{ans.pk}"
             return redirect(redir_url)
     else:
         form = AnswerForm()
-    try:
-        ans = Answer.objects.get(pk=ans_id)
-    except ObjectDoesNotExist:
-        ans = None
+
+    ans_id = request.GET.get('ans_id', 0)
+    ans = None
+    if ans_id:
+        try:
+            ans = Answer.objects.get(pk=int(ans_id))
+        except (TypeError, ObjectDoesNotExist):
+            pass
+
     context['question'] = q
     context['answers'] = paginate(request, q.answer_set.all(), 30, ans)
     context['form'] = form
@@ -92,7 +97,7 @@ def ask(request):
             question = Question.objects.create_question(author=request.user.profile,
                                                         title=title, text=text,
                                                         tag_names=tags)
-            return redirect(reverse('question', question.pk))
+            return redirect(reverse('question', kwargs={'qid': question.pk}))
     else:
         form = AskForm()
     context['form'] = form
