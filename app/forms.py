@@ -2,10 +2,9 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 import re
-
-from django.forms import ModelForm
-
 from app.models import Profile
+
+MAX_UPLOAD_SIZE = 4*1024*1024
 
 
 def validate_username_unused(username):
@@ -21,6 +20,11 @@ def validate_nickname_unused(nickname):
 def validate_email_unused(email):
     if User.objects.filter(email=email).exists():
         raise forms.ValidationError('E-mail already registered')
+
+
+def validate_image_size(image):
+    if image._size > MAX_UPLOAD_SIZE:
+        raise ValidationError(f"Image size exceeds {MAX_UPLOAD_SIZE // 1024 // 1024} mb")
 
 
 class AskForm(forms.Form):
@@ -65,7 +69,7 @@ class ProfileSettingsForm(forms.Form):
     nickname = forms.CharField(max_length=30,
                                widget=forms.TextInput(attrs={'class': 'form-control'}))
 
-    avatar = forms.ImageField(required=False,
+    avatar = forms.ImageField(required=False, validators=[validate_image_size],
                               widget=forms.FileInput(attrs={'class': 'custom-file-input',
                                                             'id': 'avatar-file'}))
 
@@ -120,6 +124,7 @@ class SignupForm(forms.Form):
                                    widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
     avatar = forms.ImageField(required=False, label='Upload avatar (optional):',
+                              validators=[validate_image_size],
                               widget=forms.FileInput(attrs={'class': 'custom-file-input',
                                                             'id': 'avatar-file'}))
 
