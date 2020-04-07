@@ -152,9 +152,9 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, db_index=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    text = models.TextField()
+    text = models.CharField(max_length=1000)
     rating = models.IntegerField(default=0)
     likes = GenericRelation(Like, related_query_name='question')
     creation_dt = models.DateTimeField(auto_now_add=True)
