@@ -74,7 +74,7 @@ class LikeManager(models.Manager):
 
 class Like(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
 
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
@@ -98,9 +98,6 @@ class TagManager(models.Manager):
 
         result_clean = [x['tag'] for x in top_tags if x['tag'] is not None]
         return result_clean
-
-    def get_or_create(self, name):
-        return super().get_or_create(name=name.lower())
 
 
 class Tag(models.Model):
@@ -133,8 +130,8 @@ class Question(models.Model):
     text = models.CharField(max_length=1000)
     tags = models.ManyToManyField(Tag, blank=True)
     likes = GenericRelation(Like, related_query_name='question')
-    creation_dt = models.DateTimeField(auto_now_add=True)
-    rating = models.IntegerField(default=0)
+    creation_dt = models.DateTimeField(auto_now_add=True, db_index=True)
+    rating = models.IntegerField(default=0, db_index=True)
     is_open = models.BooleanField(default=True)
 
     objects = QuestionManager()
@@ -155,7 +152,7 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, db_index=True)
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     text = models.TextField()
     rating = models.IntegerField(default=0)
@@ -176,4 +173,4 @@ class Answer(models.Model):
         self.save()
 
     class Meta:
-        ordering = ['creation_dt']
+        ordering = ['-rating']

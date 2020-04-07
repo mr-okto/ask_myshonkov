@@ -38,7 +38,7 @@ class AskForm(forms.Form):
                            widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     def clean_tags(self):
-        tags = [tag.strip() for tag in self.cleaned_data['tags'].split(',')]
+        tags = [tag.strip().lower() for tag in self.cleaned_data['tags'].split(',')]
         tags_limit = 3
         tag_len = 30
         if len(tags) > tags_limit:

@@ -5,10 +5,10 @@ from faker import Faker
 
 fake = Faker()
 
-DEFAULT_PROFILES_TOTAL = 50
-DEFAULT_QUESTIONS_TOTAL = 100
-DEFAULT_ANSWERS_TOTAL = 200
-DEFAULT_TAGS_TOTAL = 20
+DEFAULT_PROFILES_TOTAL = 100
+DEFAULT_QUESTIONS_TOTAL = 1000
+DEFAULT_ANSWERS_TOTAL = 10000
+DEFAULT_TAGS_TOTAL = 500
 
 DEFAULT_PASSWORD = 'fake_pwd'  # Password to be set for profiles
 DEFAULT_TAGS_LIMIT = 3  # Max tags per question
@@ -49,7 +49,7 @@ class Command(BaseCommand):
     def create_questions(self, total, tags_limit):
         profiles_list = list(Profile.objects.all())
         tag_names_list = [tag.name for tag in Tag.objects.all()]
-        likes_limit = int(len(profiles_list) / 4)
+        likes_limit = int(len(profiles_list) / 10)
         i = 0
         while i < total:
             author = fake.random.choice(profiles_list)
@@ -65,9 +65,11 @@ class Command(BaseCommand):
             rating = fake.random.randint(-likes_limit, likes_limit)
             is_positive = bool(rating > 0)
             like_authors = fake.random.sample(profiles_list, abs(rating))
+            likes = list()
             for like_author in like_authors:
-                Like.objects.create(author=like_author, content_object=question,
-                                    is_positive=is_positive)
+                likes.append(Like(author=like_author, content_object=question,
+                                  is_positive=is_positive))
+            Like.objects.bulk_create(likes, 1000)
             question.rating = rating
             question.author.reputation += rating
             question.author.save()
@@ -76,7 +78,7 @@ class Command(BaseCommand):
     def create_answers(self, total):
         profiles_list = list(Profile.objects.all())
         questions_list = list(Question.objects.all())
-        likes_limit = int(len(profiles_list) / 4)
+        likes_limit = int(len(profiles_list) / 50)
         i = 0
         while i < total:
             question = fake.random.choice(questions_list)
@@ -87,9 +89,11 @@ class Command(BaseCommand):
             rating = fake.random.randint(-likes_limit, likes_limit)
             is_positive = bool(rating > 0)
             like_authors = fake.random.sample(profiles_list, abs(rating))
+            likes = list()
             for like_author in like_authors:
-                Like.objects.create(author=like_author, content_object=answer,
-                                    is_positive=is_positive)
+                likes.append(Like(author=like_author, content_object=answer,
+                                  is_positive=is_positive))
+            Like.objects.bulk_create(likes, 1000)
             answer.rating = rating
             answer.author.reputation += rating
             answer.author.save()
