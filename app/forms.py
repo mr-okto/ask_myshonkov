@@ -23,7 +23,7 @@ def validate_email_unused(email):
 
 
 def validate_image_size(image):
-    if image._size > MAX_UPLOAD_SIZE:
+    if image.size > MAX_UPLOAD_SIZE:
         raise ValidationError(f"Image size exceeds {MAX_UPLOAD_SIZE // 1024 // 1024} mb")
 
 
