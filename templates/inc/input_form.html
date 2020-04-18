@@ -1,4 +1,7 @@
 {% load static %}
+{% for e in form.non_field_error %}
+  <div class="text-danger">{{ e }}</div>
+{% endfor %}
 <form class="ask-form needs-validation mb-3" method="POST" enctype="multipart/form-data">
   {% csrf_token %}
   {% for f in form.visible_fields %}

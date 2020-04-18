@@ -24,7 +24,11 @@
     <ul class="navbar-nav ml-auto">
       {% if user.is_authenticated %}
       <li class="nav-item mr-2 pt-2">
-        <img src="{{ MEDIA_URL }}{{ user.profile.avatar.url }}" alt="Avatar" class="rounded ask-navbar-avatar"/>
+        {% if user.profile.avatar %}
+          <img src="{{ MEDIA_URL }}{{ user.profile.avatar.url }}" alt="Avatar" class="rounded ask-navbar-avatar"/>
+        {% else %}
+          <img src="{% static 'img/avatar_placeholder.png' %}" alt="Avatar" class="rounded ask-navbar-avatar"/>
+        {% endif %}
       </li>
       <li class="nav-item">
       <div class="col">

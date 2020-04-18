@@ -17,7 +17,7 @@ context = {
 
 def redirect_next(request):
     link = request.POST.get('continue', request.GET.get('continue', ''))
-    if not link:
+    if not link or link[0] != '/':
         link = reverse('index')
     return redirect(link)
 
@@ -60,28 +60,26 @@ def tagged_questions(request, tag_name):
 
 
 def view_question(request, qid):
-    q = get_object_or_404(Question, pk=qid)
+    question = get_object_or_404(Question, pk=qid)
     if request.user.is_authenticated and request.method == 'POST':
         form = AnswerForm(request.POST)
         if form.is_valid():
-            text = form.cleaned_data.get('text')
-            ans = Answer.objects.create(question=q,
-                                        author=request.user.profile, text=text)
-            redir_url = f"{reverse('question', kwargs={'qid': qid})}?ans_id={ans.pk}#{ans.pk}"
+            answer = form.save(question, request.user.profile)
+            redir_url = f"{reverse('question', kwargs={'qid': qid})}?ans_id={answer.pk}#{answer.pk}"
             return redirect(redir_url)
     else:
         form = AnswerForm()
 
     ans_id = request.GET.get('ans_id', 0)
-    ans = None
+    answer = None
     if ans_id:
         try:
-            ans = Answer.objects.get(pk=int(ans_id))
+            answer = Answer.objects.get(pk=int(ans_id))
         except (TypeError, ObjectDoesNotExist):
             pass
 
-    context['question'] = q
-    context['answers'] = paginate(request, q.answer_set.all(), 30, ans)
+    context['question'] = question
+    context['answers'] = paginate(request, question.answer_set.all(), 30, answer)
     context['form'] = form
     return render(request, 'question.html', context)
 
@@ -91,12 +89,7 @@ def ask(request):
     if request.method == 'POST':
         form = AskForm(request.POST)
         if form.is_valid():
-            title = form.cleaned_data.get('title')
-            text = form.cleaned_data.get('text')
-            tags = form.cleaned_data.get('tags')
-            question = Question.objects.create_question(author=request.user.profile,
-                                                        title=title, text=text,
-                                                        tag_names=tags)
+            question = form.save(request.user.profile)
             return redirect(reverse('question', kwargs={'qid': question.pk}))
     else:
         form = AskForm()
@@ -133,15 +126,7 @@ def register(request):
     if request.method == 'POST':
         form = SignupForm(request.POST, request.FILES)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            nickname = form.cleaned_data.get('nickname')
-            password = form.cleaned_data.get('password')
-            avatar = form.cleaned_data.get('avatar')
-            profile = Profile.objects.create_profile(
-                username=username, email=email, nickname=nickname,
-                password=password, avatar=avatar)
-
+            profile = form.save()
             auth.login(request, profile.user)
             return redirect_next(request)
     else:
@@ -158,13 +143,7 @@ def profile_settings(request):
     if request.method == 'POST':
         form = ProfileSettingsForm(request.POST, request.FILES, initial=initial)
         if form.is_valid() and form.has_changed():
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            nickname = form.cleaned_data.get('nickname')
-            avatar = form.cleaned_data.get('avatar')
-            profile = request.user.profile
-            profile.update_profile(username=username, email=email,
-                                   nickname=nickname, avatar=avatar)
+            profile = form.save(request.user.profile)
             auth.logout(request)
             auth.login(request, profile.user)
     else:

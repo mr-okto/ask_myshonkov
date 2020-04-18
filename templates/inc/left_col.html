@@ -1,7 +1,11 @@
 {% load static %}
 
 <div class="text-center mt-1">
-  <img class="ask-avatar-thumb " src="{{ MEDIA_ROOT }}{{ profile.avatar.url }}"/>
+  {% if profile.avatar %}
+    <img class="ask-avatar-thumb " src="{{ MEDIA_URL }}{{ profile.avatar.url }}"/>
+  {% else %}
+    <img class="ask-avatar-thumb " src="{% static 'img/avatar_placeholder.png' %}"/>
+  {% endif %}
   <div class="row justify-content-center pt-1">
   <span class="ask-left-col-name trunc-text">{{ profile.nickname }}</span>
   </div>

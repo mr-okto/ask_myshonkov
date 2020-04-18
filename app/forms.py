@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 import re
-from app.models import Profile
+from app.models import Profile, Question, Answer
 
 MAX_UPLOAD_SIZE = 4*1024*1024
 
@@ -52,11 +52,23 @@ class AskForm(forms.Form):
                                             'Use comma as a separator')
         return tags
 
+    def save(self, profile):
+        title = self.cleaned_data.get('title')
+        text = self.cleaned_data.get('text')
+        tags = self.cleaned_data.get('tags')
+        question = Question.objects.create_question(author=profile, title=title, text=text, tag_names=tags)
+        return question
+
 
 class AnswerForm(forms.Form):
     text = forms.CharField(max_length=1000, label='',
                            widget=forms.Textarea(attrs={'class': 'form-control',
                                                         'placeholder': 'Enter your answer here...'}))
+
+    def save(self, question, profile):
+        text = self.cleaned_data.get('text')
+        answer = Answer.objects.create(question=question, author=profile, text=text)
+        return answer
 
 
 class ProfileSettingsForm(forms.Form):
@@ -94,6 +106,14 @@ class ProfileSettingsForm(forms.Form):
         nickname = self.cleaned_data['nickname']
         validate_nickname_unused(nickname)
         return nickname
+
+    def save(self, profile):
+        username = self.cleaned_data.get('username')
+        email = self.cleaned_data.get('email')
+        nickname = self.cleaned_data.get('nickname')
+        avatar = self.cleaned_data.get('avatar')
+        profile.update_profile(username=username, email=email, nickname=nickname, avatar=avatar)
+        return profile
 
 
 class LoginForm(forms.Form):
@@ -135,3 +155,14 @@ class SignupForm(forms.Form):
         if password != password_rep:
             self.add_error('password_rep', forms.ValidationError('Passwords do not match'))
         return cleaned_data
+
+    def save(self):
+        username = self.cleaned_data.get('username')
+        email = self.cleaned_data.get('email')
+        nickname = self.cleaned_data.get('nickname')
+        password = self.cleaned_data.get('password')
+        avatar = self.cleaned_data.get('avatar')
+        profile = Profile.objects.create_profile(
+            username=username, email=email, nickname=nickname,
+            password=password, avatar=avatar)
+        return profile

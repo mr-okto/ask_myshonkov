@@ -6,16 +6,12 @@ from django.conf import settings
 from django.core.exceptions import ValidationError, FieldError
 from django.contrib.auth.models import User
 
-DEFAULT_AVATAR = path.join('uploads', 'avatar_placeholder.png')
-
 
 class ProfileManager(models.Manager):
     def get_top(self, count):
         return self.order_by('-reputation')[:count]
 
     def create_profile(self, username, email, nickname, password, avatar=None):
-        if not avatar:
-            avatar = DEFAULT_AVATAR
         user = User.objects.create_user(username, email, password)
         return self.create(user=user, nickname=nickname, avatar=avatar)
 
@@ -24,7 +20,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nickname = models.CharField(max_length=30, unique=True)
     reputation = models.IntegerField(default=0)
-    avatar = models.ImageField(upload_to='uploads', default=DEFAULT_AVATAR)
+    avatar = models.ImageField(upload_to='uploads')
     objects = ProfileManager()
 
     def update_profile(self, username=None, email=None, nickname=None, avatar=None):
