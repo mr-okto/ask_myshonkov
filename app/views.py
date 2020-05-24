@@ -2,7 +2,7 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.core.paginator import Paginator
 from django.urls import reverse
 
@@ -35,27 +35,42 @@ def paginate(request, objects, page_count, tagret=None):
     return page
 
 
+def get_likes(objects, user):
+    if user.is_authenticated:
+        profile = user.profile
+        likes_sign = [q.get_like_sign(profile) for q in objects]
+    else:
+        likes_sign = [0 for q in objects]
+    return likes_sign
+
+
 def index(request):
+    questions = paginate(request, Question.objects.get_new(), 10)
+    likes_sign = get_likes(questions, request.user)
+    context['questions'] = zip(questions, likes_sign)
     context['title'] = 'New questions'
     context['switch_title'] = 'Hot questions'
     context['switch_url'] = 'hot'
-    context['questions'] = paginate(request, Question.objects.get_new(), 10)
     return render(request, 'index.html', context)
 
 
 def hot_questions(request):
+    questions = paginate(request, Question.objects.get_hot(), 10)
+    likes_sign = get_likes(questions, request.user)
+    context['questions'] = zip(questions, likes_sign)
     context['title'] = 'Hot questions'
     context['switch_title'] = 'New questions'
     context['switch_url'] = 'index'
-    context['questions'] = paginate(request, Question.objects.get_hot(), 10)
     return render(request, 'index.html', context)
 
 
 def tagged_questions(request, tag_name):
+    questions = paginate(request, Question.objects.get_tagged(tag_name), 10)
+    likes_sign = get_likes(questions, request.user)
+    context['questions'] = zip(questions, likes_sign)
     context['title'] = f'#{tag_name}'
     context['switch_title'] = 'All questions'
     context['switch_url'] = 'index'
-    context['questions'] = paginate(request, Question.objects.get_tagged(tag_name), 10)
     return render(request, 'index.html', context)
 
 
@@ -71,15 +86,22 @@ def view_question(request, qid):
         form = AnswerForm()
 
     ans_id = request.GET.get('ans_id', 0)
-    answer = None
+    answer_start = None
     if ans_id:
         try:
-            answer = Answer.objects.get(pk=int(ans_id))
+            answer_start = Answer.objects.get(pk=int(ans_id))
         except (TypeError, ObjectDoesNotExist):
             pass
 
+    answers = paginate(request, question.answer_set.all(), 30, answer_start)
+    likes_sign = get_likes(answers, request.user)
+
     context['question'] = question
-    context['answers'] = paginate(request, question.answer_set.all(), 30, answer)
+    if request.user.is_authenticated:
+        context['q_like_sign'] = question.get_like_sign(request.user.profile)
+    else:
+        context['q_like_sign'] = 0
+    context['answers'] = zip(answers, likes_sign)
     context['form'] = form
     return render(request, 'question.html', context)
 
@@ -110,6 +132,9 @@ def log_in(request):
                 form.add_error('password', 'Login and password do not match')
     else:
         form = LoginForm()
+
+    if request.user.is_authenticated:
+        return redirect_next(request)
     context['form'] = form
     return render(request, 'login.html', context)
 
@@ -150,3 +175,33 @@ def profile_settings(request):
         form = ProfileSettingsForm(initial=initial)
     context['form'] = form
     return render(request, 'settings.html', context)
+
+@login_required
+def ajax_like(request):
+    qid = int(request.POST.get('id'))
+    obj_type = request.POST.get('type')
+    is_positive = request.POST.get('is_positive') == 'true'
+
+    if obj_type == 'question':
+        object_class = Question
+    elif obj_type == 'answer':
+        object_class = Answer
+
+    object_ = get_object_or_404(object_class, id=qid)
+    rating = Like.objects.add_like(request.user.profile, object_, is_positive)
+    return JsonResponse({
+        'likes_count': rating,
+    })
+
+
+@login_required
+def ajax_mark_correct(request):
+    qid = int(request.POST.get('id'))
+    answer = get_object_or_404(Answer, id=qid)
+    print(answer.text)
+    result = answer.set_right(request.user.profile)
+    print(answer.is_right)
+
+    return JsonResponse({
+        'is_correct': result,
+    })

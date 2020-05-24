@@ -3,7 +3,7 @@
 <div class="container-fluid border rounded mb-4 py-1 px-4">
   <div class="row">
     <div class="col-md-2">
-      {% include 'inc/left_col.html' with votes=question.rating profile=question.author %}
+      {% include 'inc/left_col.html' with votes=question.rating profile=question.author object_id=question.id object_type='question' %}
     </div>
     <div class="col-md-10">
       <a class="mt-0 mb-1 ask-question-title" href="{% url 'question' question.id %}">{{ question.title }}</a>

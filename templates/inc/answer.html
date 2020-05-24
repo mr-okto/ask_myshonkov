@@ -2,15 +2,15 @@
 <div class="container-fluid border rounded mb-4 p-1">
   <div class="row">
     <div class="col-md-2">
-      {% include 'inc/left_col.html' with votes=answer.rating profile=answer.author %}
+      {% include 'inc/left_col.html' with votes=answer.rating profile=answer.author object_id=answer.id object_type='answer' %}
     </div>
     <div class="col-md-10">
       <p class="text-justify pl-0 pr-2 mt-1 mb-1">{{ answer.text }}</p>
       <div class="row ml-0 my-1">
         <div class="custom-control custom-checkbox">
-          <input class="custom-control-input" type="checkbox" value="" id="answer_{{ answer.pk }}_checked"
-            {% if answer.correct %} checked {% endif %}
-            {% if user.username != question.author %} disabled {% endif %} >
+          <input class="custom-control-input" type="checkbox" onclick="mark_as_correct({{ answer.id }});" value="" id="answer_{{ answer.pk }}_checked"
+            {% if answer.is_right %} checked disabled
+            {% elif request.user.id != question.author.user.id %} disabled {% endif %} >
           <label class="custom-control-label text-dark" for="answer_{{ answer.pk }}_checked">Correct</label>
         </div>
       </div>

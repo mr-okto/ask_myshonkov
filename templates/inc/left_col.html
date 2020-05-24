@@ -10,12 +10,39 @@
   <span class="ask-left-col-name trunc-text">{{ profile.nickname }}</span>
   </div>
   <div class="row justify-content-center">
-    <button class="btn ask-btn-vote">
+    {% if like_sign == 1 %}
+    <button class="btn ask-btn-vote" disabled>
+      <img src="{% static 'svg/arrow_up_fill.svg' %}">
+    </button>
+    <span class="ask-votes-count" id="rating_{{ object_type }}_{{ object_id }}">{{ votes }}</span>
+    <button class="btn ask-btn-vote" disabled>
+      <img src="{% static 'svg/arrow_down.svg' %}">
+    </button>
+    {% elif like_sign == -1 %}
+    <button class="btn ask-btn-vote" disabled>
       <img src="{% static 'svg/arrow_up.svg' %}">
     </button>
-  <span class="ask-votes-count">{{ votes }}</span>
-  <button class="btn ask-btn-vote">
-    <img src="{% static 'svg/arrow_down.svg' %}">
-  </button>
-</div>
+    <span class="ask-votes-count" id="rating_{{ object_type }}_{{ object_id }}">{{ votes }}</span>
+    <button class="btn ask-btn-vote" disabled>
+      <img src="{% static 'svg/arrow_down_fill.svg' %}">
+    </button>
+    {% elif user.is_authenticated %}
+    <button class="btn ask-btn-vote" onclick="create_like({{ object_id }}, '{{ object_type }}', true)" id="upvote_{{ object_type }}_{{ object_id }}">
+      <img src="{% static 'svg/arrow_up.svg' %}" id="upvote_{{ object_type }}_{{ object_id }}_img">
+    </button>
+    <span class="ask-votes-count" id="rating_{{ object_type }}_{{ object_id }}">{{ votes }}</span>
+    <button class="btn ask-btn-vote" onclick="create_like({{ object_id }}, '{{ object_type }}', false)" id="downvote_{{ object_type }}_{{ object_id }}">
+      <img src="{% static 'svg/arrow_down.svg' %}" id="downvote_{{ object_type }}_{{ object_id }}_img">
+    </button>
+    {% else %}
+    <button class="btn ask-btn-vote" disabled>
+      <img src="{% static 'svg/arrow_up.svg' %}">
+    </button>
+    <span class="ask-votes-count">{{ votes }}</span>
+    <button class="btn ask-btn-vote" disabled>
+      <img src="{% static 'svg/arrow_down.svg' %}" >
+    </button>
+    {% endif %}
+
+  </div>
 </div>

@@ -66,6 +66,27 @@ class LikeManager(models.Manager):
             content_object.author.save()
             content_object.rating += rating_delta
             content_object.save()
+        return content_object.rating
+
+    def remove_like(self, author, content_object):
+        likes = content_object.likes.filter(author=author)
+        if likes:
+            if likes.filter(is_positive=True).exists():
+                content_object.rating -= 1
+            else:
+                content_object.rating += 1
+            likes.delete()
+            content_object.save()
+        return content_object.rating
+
+    def like_sign(self, profile, content_object):
+        likes = content_object.likes.filter(author=profile)
+        if not likes:
+            return 0
+        elif likes.filter(is_positive=True).exists():
+            return 1
+        else:
+            return -1
 
 
 class Like(models.Model):
@@ -143,6 +164,9 @@ class Question(models.Model):
     def add_like(self, from_profile, is_positive=True):
         Like.objects.add_like(author=from_profile, content_object=self, is_positive=is_positive)
 
+    def get_like_sign(self, profile):
+        return Like.objects.like_sign(profile=profile, content_object=self)
+
     class Meta:
         ordering = ['-creation_dt']
 
@@ -162,11 +186,15 @@ class Answer(models.Model):
     def add_like(self, from_profile, is_positive=True):
         Like.objects.add_like(author=from_profile, content_object=self, is_positive=is_positive)
 
+    def get_like_sign(self, profile):
+        return Like.objects.like_sign(profile=profile, content_object=self)
+
     def set_right(self, from_profile, is_right=True):
-        if from_profile != self.author:
+        if from_profile != self.question.author:
             return False
         self.is_right = is_right
         self.save()
+        return True
 
     class Meta:
         ordering = ['-rating']

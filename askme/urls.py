@@ -30,6 +30,8 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('question/<int:qid>/', views.view_question, name='question'),
     path('settings/', views.profile_settings, name='settings'),
+    path('ajax/like/', views.ajax_like, name='ajax_like'),
+    path('ajax/mark_correct/', views.ajax_mark_correct, name='ajax_mark_correct'),
     path('admin/', admin.site.urls),
 ]
 

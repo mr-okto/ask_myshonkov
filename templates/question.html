@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container-fluid ask-question p-0 my-4">
   <div class="row">
     <div class="col-md-3">
-      {% include 'inc/left_col.html' with votes=question.rating profile=question.author %}
+      {% include 'inc/left_col.html' with votes=question.rating profile=question.author object_id=question.id object_type='question' like_sign=q_like_sign %}
     </div>
     <div class="col-md-9">
       <p class="mt-0 mb-1 ask-question-title">{{ question.title }}</p>
@@ -15,7 +16,7 @@
     </div>
   </div>
 </div>
-{% for answer in answers %}
+{% for answer, like_sign in answers %}
 {% include 'inc/answer.html' %}
 {% endfor %}
 
@@ -25,4 +26,5 @@
 {% if user.is_authenticated %}
 {% include 'inc/input_form.html' with submit='Answer' %}
 {% endif %}
+<script src="{% static 'js/question.js' %}"></script>
 {% endblock content %}
