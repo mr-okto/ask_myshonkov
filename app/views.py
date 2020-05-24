@@ -178,10 +178,19 @@ def profile_settings(request):
 
 @login_required
 def ajax_like(request):
-    qid = int(request.POST.get('id'))
-    obj_type = request.POST.get('type')
-    is_positive = request.POST.get('is_positive') == 'true'
+    try:
+        qid = int(request.POST.get('id', None))
+    except TypeError:
+        return JsonResponse(dict(), status=422)
 
+    obj_type = request.POST.get('type', '')
+    sign = request.POST.get('is_positive', '')
+    if obj_type != 'question' and obj_type != 'answer':
+        return JsonResponse(dict(), status=422)
+    if sign != 'true' and sign != 'false':
+        return JsonResponse(dict(), status=422)
+
+    is_positive = (sign == 'true')
     if obj_type == 'question':
         object_class = Question
     elif obj_type == 'answer':
@@ -196,12 +205,16 @@ def ajax_like(request):
 
 @login_required
 def ajax_mark_correct(request):
-    qid = int(request.POST.get('id'))
-    answer = get_object_or_404(Answer, id=qid)
-    print(answer.text)
-    result = answer.set_right(request.user.profile)
-    print(answer.is_right)
+    try:
+        qid = int(request.POST.get('id', None))
+    except TypeError:
+        return JsonResponse(dict(), status=422)
+    try:
+        answer = Answer.objects.get(id=qid)
+    except ObjectDoesNotExist:
+        return JsonResponse(dict(), status=422)
 
+    result = answer.set_right(request.user.profile)
     return JsonResponse({
         'is_correct': result,
     })
