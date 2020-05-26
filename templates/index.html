@@ -11,6 +11,6 @@
 {% for question, like_sign in questions %}
 {% include 'inc/question_preview.html' %}
 {% endfor %}
-{% include 'inc/pager.html' with object=questions %}
+{% include 'inc/pager.html' with object=pages %}
 <script src="{% static 'js/question.js' %}"></script>
 {% endblock content %}

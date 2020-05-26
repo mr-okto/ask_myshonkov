@@ -51,6 +51,7 @@ def index(request):
     context['title'] = 'New questions'
     context['switch_title'] = 'Hot questions'
     context['switch_url'] = 'hot'
+    context['pages'] = questions
     return render(request, 'index.html', context)
 
 
@@ -61,6 +62,7 @@ def hot_questions(request):
     context['title'] = 'Hot questions'
     context['switch_title'] = 'New questions'
     context['switch_url'] = 'index'
+    context['pages'] = questions
     return render(request, 'index.html', context)
 
 
@@ -71,6 +73,7 @@ def tagged_questions(request, tag_name):
     context['title'] = f'#{tag_name}'
     context['switch_title'] = 'All questions'
     context['switch_url'] = 'index'
+    context['pages'] = questions
     return render(request, 'index.html', context)
 
 
@@ -103,6 +106,7 @@ def view_question(request, qid):
         context['q_like_sign'] = 0
     context['answers'] = zip(answers, likes_sign)
     context['form'] = form
+    context['pages'] = answers
     return render(request, 'question.html', context)
 
 
